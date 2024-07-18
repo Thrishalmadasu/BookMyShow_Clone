@@ -42,7 +42,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-rrouter.post("/login", async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
 
@@ -65,13 +65,18 @@ rrouter.post("/login", async (req, res) => {
       });
     }
 
+    const token = jwt.sign({ userId: user._id }, process.env.secret_key_jwt, {
+      expiresIn: "1d",
+    });
+
     // Send success response with user role
     res.send({
       success: true,
       message: "Login successful!",
       role: user.role, // Assuming the user model has a role field
+      token: token,
     });
-    
+
   } catch (error) {
     console.error(error);
     res.status(500).send({
